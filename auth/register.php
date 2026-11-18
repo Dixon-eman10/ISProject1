@@ -1,5 +1,6 @@
 <?php
 // auth/register.php
+session_start();
 require_once __DIR__ . '/../config/db.php';
 
 $message = '';
@@ -10,16 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (!empty($full_name) && !empty($email) && !empty($password)) {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        
-        if ($stmt->rowCount() > 0) {
-            $message = "Email is already registered.";
+        $check_stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $check_stmt->execute([$email]);
+        if ($check_stmt->fetch()) {
+            $message = "That email address is already registered.";
         } else {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            
-            // Default role is 'user'
             $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, 'user')");
             if ($stmt->execute([$full_name, $email, $password_hash])) {
                 header("Location: login.php?registered=success");
@@ -29,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } else {
-        $message = "All fields are required.";
+        $message = "Please fill in all fields.";
     }
 }
 ?>
@@ -42,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="container" style="max-width: 400px; margin: 50px auto; font-family: sans-serif;">
-        <h2>Create Account</h2>
+        <h2>Create an Account</h2>
         <?php if (!empty($message)): ?>
             <p style="color: red;"><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
@@ -59,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label>Password:</label><br>
                 <input type="password" name="password" required style="width: 100%; padding: 8px;">
             </div>
-            <button type="submit" style="padding: 10px 15px;">Register</button>
+            <button type="submit" style="padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Register</button>
         </form>
         <p style="margin-top: 15px;">Already have an account? <a href="login.php">Login here</a></p>
     </div>
