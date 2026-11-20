@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 // Fetch recent login logs and total user count
 try {
-    $stmt = $pdo->query("SELECT l.*, u.full_name FROM login_logs l LEFT JOIN users u ON l.user_id = u.id ORDER BY l.logged_at DESC LIMIT 10");
+    $stmt = $pdo->query("SELECT l.*, u.full_name FROM login_logs l LEFT JOIN users u ON l.user_id = u.id ORDER BY l.attempted_at DESC LIMIT 10");
     $recent_logs = $stmt->fetchAll();
 
     $user_count_stmt = $pdo->query("SELECT COUNT(*) as total FROM users");
@@ -32,7 +32,7 @@ try {
     <div class="container" style="max-width: 800px; margin: 40px auto; font-family: sans-serif;">
         <h2>Admin Management Dashboard</h2>
         <p>Welcome back, <strong><?php echo htmlspecialchars($_SESSION['full_name']); ?></strong> (Admin)</p>
-        
+
         <div style="display: flex; gap: 20px; margin: 20px 0;">
             <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; flex: 1;">
                 <h4>Total Registered Users</h4>
@@ -65,7 +65,7 @@ try {
                             <td style="color: <?php echo $log['status'] === 'success' ? 'green' : 'red'; ?>;">
                                 <?php echo ucfirst($log['status']); ?>
                             </td>
-                            <td><?php echo $log['logged_at']; ?></td>
+                            <td><?php echo htmlspecialchars($log['attempted_at']); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
